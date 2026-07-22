@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 import re
-import nltk
+from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 
 # Download stopwords if you haven't already
 # nltk.download('stopwords')
@@ -47,12 +47,10 @@ X_train, X_test, y_train, y_test = train_test_split(
 print(f"\nTraining set size: {len(X_train)}, Test set size: {len(X_test)}")
 
 # ===================== 4. Feature Extraction (TF-IDF) =====================
-# Use English stopwords
-stop_words = stopwords.words('english')
 
 tfidf = TfidfVectorizer(
     max_features=5000,          # Keep only the top 5000 most important words
-    stop_words=stop_words,
+    stop_words='english',  # Use built-in English stopwords
     ngram_range=(1, 2),         # Use single words and two-word phrases
     min_df=2,                   # Ignore words that appear in fewer than 2 documents
     max_df=0.8                  # Ignore words that appear in more than 80% of documents
