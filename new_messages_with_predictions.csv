@@ -1,0 +1,4 @@
+label,new_messages,prediction,prob_ham,prob_spam
+,Congratulations! You've won a free iPhone. Call now!,spam,0.15833262164280826,0.8416673783571917
+,"Hey, how are you? Let's meet tomorrow.",ham,0.9103696458497013,0.08963035415029873
+,URGENT! Your account has been suspended. Click here to reactivate.,spam,0.32524881011472484,0.6747511898852752

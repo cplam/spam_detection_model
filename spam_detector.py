@@ -70,12 +70,14 @@ model.fit(X_train_tfidf, y_train)
 y_pred = model.predict(X_test_tfidf)
 
 print("\n======= Test Set Evaluation =======")
-print("Accuracy:", accuracy_score(y_test, y_pred))
+print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
 print("\nClassification Report:\n", classification_report(y_test, y_pred, target_names=['ham', 'spam']))
 print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
 
 # ===================== 7. Predict New Messages =====================
 def predict_message(text):
+    if pd.isna(text) or not isinstance(text, str) or len(text.strip()) == 0:
+        return "ham", [1.0, 0.0]  # Default to "ham" for empty or invalid messages
     cleaned = clean_text(text)
     vec = tfidf.transform([cleaned])
     pred = model.predict(vec)[0]
@@ -83,15 +85,31 @@ def predict_message(text):
     label = "spam" if pred == 1 else "ham"
     return label, prob
 
-# Test with a few custom messages
-new_messages = [
-    "Congratulations! You've won a free iPhone. Call now!",
-    "Hey, how are you? Let's meet tomorrow.",
-    "URGENT! Your account has been suspended. Click here to reactivate."
-]
+new_df = pd.read_csv('new_messages.csv', encoding='latin-1')
+
+message_col = 'new_messages'  # Replace with the actual column name in your CSV
+
+if message_col not in new_df.columns:
+    raise ValueError(f"Column '{message_col}' does not exist in the new messages CSV. Available columns: {new_df.columns.tolist()}")
+
+# do prediction on new messages
+predictions = []
+prob_ham = []
+prob_spam = []
+
+for text in new_df[message_col]:
+    label, prob = predict_message(text)
+    predictions.append(label)
+    prob_ham.append(prob[0])
+    prob_spam.append(prob[1])
+
+new_df['prediction'] = predictions
+new_df['prob_ham'] = prob_ham
+new_df['prob_spam'] = prob_spam
 
 print("\n======= Prediction on New Messages =======")
-for msg in new_messages:
-    label, prob = predict_message(msg)
-    print(f"Message: {msg}")
-    print(f"Prediction: {label} (Probability: ham={prob[0]:.3f}, spam={prob[1]:.3f})\n")
+print(new_df[[message_col, 'prediction', 'prob_ham', 'prob_spam']].to_string(index=False))
+
+# Save to CSV
+new_df.to_csv('new_messages_with_predictions.csv', index=False, encoding='utf-8')
+print("\nResults saved to 'new_messages_with_predictions.csv'")
